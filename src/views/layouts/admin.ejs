@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Admin | One-Time Link</title>
+  <link rel="stylesheet" href="/css/output.css">
+  <meta name="robots" content="noindex, nofollow">
+  <style>
+    .copy-btn.copied { background-color: #059669; }
+    .sidebar-link.active { background-color: rgba(59, 130, 246, 0.15); color: #93c5fd; border-left-color: #3b82f6; }
+  </style>
+</head>
+<body class="min-h-screen bg-gray-950 text-gray-100">
+  <div class="flex min-h-screen">
+    <%- include('../partials/admin-sidebar') %>
+    <div class="flex-1 flex flex-col">
+      <%- include('../partials/admin-header') %>
+      <main class="flex-1 p-6 lg:p-8 overflow-auto">
+        <%- body %>
+      </main>
+    </div>
+  </div>
+  <script>
+    function copyToClipboard(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.classList.add('copied');
+        btn.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.textContent = 'Copy';
+        }, 2000);
+      });
+    }
+
+    const sidebar = document.getElementById('mobileSidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    function toggleSidebar() {
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    }
+  </script>
+</body>
+</html>

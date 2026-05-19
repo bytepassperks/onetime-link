@@ -1,0 +1,32 @@
+<% layout('layouts/main') %>
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="card">
+    <h1 class="text-2xl font-bold text-white mb-6">Terms of Service</h1>
+    <div class="prose prose-invert text-gray-300 text-sm space-y-4">
+      <p><strong>Last updated:</strong> <%= new Date().toLocaleDateString() %></p>
+
+      <h2 class="text-lg font-semibold text-white mt-6">1. Service Description</h2>
+      <p>One-Time Link provides a service for creating single-use redirect links. Each link is designed to work a limited number of times before becoming permanently inactive.</p>
+
+      <h2 class="text-lg font-semibold text-white mt-6">2. Acceptable Use</h2>
+      <p>You agree not to use this service for:</p>
+      <ul class="list-disc pl-6 space-y-1">
+        <li>Distributing malware or malicious content</li>
+        <li>Phishing or fraudulent activities</li>
+        <li>Spam or unsolicited communications</li>
+        <li>Any illegal activities</li>
+        <li>Circumventing the single-use nature of links</li>
+      </ul>
+
+      <h2 class="text-lg font-semibold text-white mt-6">3. No Guarantee</h2>
+      <p>While we strive to ensure links work as intended, we do not guarantee that bot detection will prevent all automated access. Links may be consumed by automated systems despite our best efforts.</p>
+
+      <h2 class="text-lg font-semibold text-white mt-6">4. Limitation of Liability</h2>
+      <p>This service is provided "as is" without warranties of any kind. We are not liable for any damages resulting from the use or inability to use this service.</p>
+
+      <h2 class="text-lg font-semibold text-white mt-6">5. Changes</h2>
+      <p>We reserve the right to modify these terms at any time. Continued use of the service constitutes acceptance of updated terms.</p>
+    </div>
+  </div>
+</div>

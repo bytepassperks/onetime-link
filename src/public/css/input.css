@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-950 text-gray-100 font-sans antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply px-6 py-2.5 bg-brand-600 text-white rounded-lg font-medium 
+           hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 
+           focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-2.5 bg-gray-700 text-gray-100 rounded-lg font-medium 
+           hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 
+           focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors duration-200;
+  }
+
+  .btn-danger {
+    @apply px-6 py-2.5 bg-red-600 text-white rounded-lg font-medium 
+           hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 
+           focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors duration-200;
+  }
+
+  .btn-success {
+    @apply px-6 py-2.5 bg-green-600 text-white rounded-lg font-medium 
+           hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 
+           focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors duration-200;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg 
+           text-gray-100 placeholder-gray-500
+           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent 
+           transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-6 shadow-lg;
+  }
+
+  .stat-card {
+    @apply bg-gray-900 border border-gray-800 rounded-xl p-5 shadow-lg;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-active {
+    @apply badge bg-green-900 text-green-300;
+  }
+
+  .badge-consumed {
+    @apply badge bg-blue-900 text-blue-300;
+  }
+
+  .badge-expired {
+    @apply badge bg-yellow-900 text-yellow-300;
+  }
+
+  .badge-disabled {
+    @apply badge bg-gray-700 text-gray-400;
+  }
+
+  .badge-deleted {
+    @apply badge bg-red-900 text-red-300;
+  }
+
+  .table-container {
+    @apply overflow-x-auto rounded-xl border border-gray-800;
+  }
+
+  .data-table {
+    @apply w-full text-sm text-left;
+  }
+
+  .data-table thead {
+    @apply bg-gray-800 text-gray-400 text-xs uppercase tracking-wider;
+  }
+
+  .data-table th {
+    @apply px-4 py-3 font-medium;
+  }
+
+  .data-table td {
+    @apply px-4 py-3 border-t border-gray-800;
+  }
+
+  .data-table tbody tr {
+    @apply hover:bg-gray-800/50 transition-colors;
+  }
+}

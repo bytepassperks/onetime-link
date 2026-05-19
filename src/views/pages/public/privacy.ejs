@@ -1,0 +1,37 @@
+<% layout('layouts/main') %>
+
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="card">
+    <h1 class="text-2xl font-bold text-white mb-6">Privacy Policy</h1>
+    <div class="prose prose-invert text-gray-300 text-sm space-y-4">
+      <p><strong>Last updated:</strong> <%= new Date().toLocaleDateString() %></p>
+
+      <h2 class="text-lg font-semibold text-white mt-6">1. Information We Collect</h2>
+      <p>When you create or access a one-time link, we may collect:</p>
+      <ul class="list-disc pl-6 space-y-1">
+        <li>Hashed (anonymized) IP addresses — we do not store raw IP addresses long-term</li>
+        <li>User agent strings for bot detection purposes</li>
+        <li>Referrer headers</li>
+        <li>Timestamps of access events</li>
+      </ul>
+
+      <h2 class="text-lg font-semibold text-white mt-6">2. How We Use Your Information</h2>
+      <p>We use collected information exclusively for:</p>
+      <ul class="list-disc pl-6 space-y-1">
+        <li>Detecting and preventing bot/crawler access to one-time links</li>
+        <li>Providing analytics to link creators</li>
+        <li>Abuse prevention and rate limiting</li>
+        <li>System security and audit logging</li>
+      </ul>
+
+      <h2 class="text-lg font-semibold text-white mt-6">3. Data Retention</h2>
+      <p>Access event data is retained for operational purposes. IP addresses are hashed before storage and cannot be reversed to identify individuals. Link data may be permanently deleted upon request.</p>
+
+      <h2 class="text-lg font-semibold text-white mt-6">4. Data Security</h2>
+      <p>We implement industry-standard security measures including encryption, secure sessions, CSRF protection, and rate limiting to protect your data.</p>
+
+      <h2 class="text-lg font-semibold text-white mt-6">5. Contact</h2>
+      <p>For privacy-related inquiries, please contact the administrator of this instance.</p>
+    </div>
+  </div>
+</div>

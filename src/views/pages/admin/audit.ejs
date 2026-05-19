@@ -1,0 +1,72 @@
+<% layout('layouts/admin') %>
+
+<div>
+  <h1 class="text-2xl font-bold text-white mb-6">Audit Logs</h1>
+
+  <div class="card mb-6">
+    <form method="GET" action="/admin/audit" class="flex flex-col sm:flex-row gap-3">
+      <select name="action" class="input-field sm:w-56">
+        <option value="all" <%= action === 'all' ? 'selected' : '' %>>All Actions</option>
+        <option value="admin_login_success" <%= action === 'admin_login_success' ? 'selected' : '' %>>Login Success</option>
+        <option value="admin_login_failed" <%= action === 'admin_login_failed' ? 'selected' : '' %>>Login Failed</option>
+        <option value="admin_logout" <%= action === 'admin_logout' ? 'selected' : '' %>>Logout</option>
+        <option value="link_created" <%= action === 'link_created' ? 'selected' : '' %>>Link Created</option>
+        <option value="link_disabled" <%= action === 'link_disabled' ? 'selected' : '' %>>Link Disabled</option>
+        <option value="link_enabled" <%= action === 'link_enabled' ? 'selected' : '' %>>Link Enabled</option>
+        <option value="link_deleted" <%= action === 'link_deleted' ? 'selected' : '' %>>Link Deleted</option>
+        <option value="settings_updated" <%= action === 'settings_updated' ? 'selected' : '' %>>Settings Updated</option>
+      </select>
+      <button type="submit" class="btn-secondary text-sm">Filter</button>
+    </form>
+  </div>
+
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Action</th>
+          <th>Admin</th>
+          <th>Target</th>
+          <th>Details</th>
+          <th>IP Hash</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (logs.length === 0) { %>
+          <tr><td colspan="6" class="text-center text-gray-500 py-8">No audit logs found</td></tr>
+        <% } %>
+        <% logs.forEach(log => { %>
+          <tr>
+            <td class="text-gray-400 text-xs whitespace-nowrap"><%= new Date(log.timestamp).toLocaleString() %></td>
+            <td>
+              <span class="badge <%= 
+                log.action.includes('failed') ? 'bg-red-900 text-red-300' : 
+                log.action.includes('success') || log.action.includes('created') ? 'bg-green-900 text-green-300' : 
+                log.action.includes('deleted') || log.action.includes('disabled') ? 'bg-yellow-900 text-yellow-300' : 
+                'bg-gray-700 text-gray-400' 
+              %>">
+                <%= log.action %>
+              </span>
+            </td>
+            <td class="text-gray-300 text-xs"><%= log.admin ? (log.admin.name || log.admin.email) : '—' %></td>
+            <td class="text-gray-400 text-xs font-mono"><%= log.target || '—' %></td>
+            <td class="text-gray-500 text-xs max-w-xs truncate"><%= log.details || '—' %></td>
+            <td class="text-gray-600 text-xs font-mono"><%= log.ipHash ? log.ipHash.substring(0, 8) + '...' : '—' %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if (pages > 1) { %>
+    <div class="flex items-center justify-center gap-2 mt-6">
+      <% for (let p = 1; p <= pages; p++) { %>
+        <a href="/admin/audit?page=<%= p %>&action=<%= action %>" 
+           class="px-3 py-1.5 rounded-lg text-sm <%= p === currentPage ? 'bg-brand-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white' %>">
+          <%= p %>
+        </a>
+      <% } %>
+    </div>
+  <% } %>
+</div>

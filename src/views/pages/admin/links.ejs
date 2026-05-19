@@ -1,0 +1,78 @@
+<% layout('layouts/admin') %>
+
+<div>
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+    <h1 class="text-2xl font-bold text-white">Links</h1>
+    <a href="/admin/links/create" class="btn-primary text-sm">+ Create Link</a>
+  </div>
+
+  <div class="card mb-6">
+    <form method="GET" action="/admin/links" class="flex flex-col sm:flex-row gap-3">
+      <input type="text" name="search" class="input-field flex-1" placeholder="Search by slug, URL, or label..." value="<%= search %>">
+      <select name="status" class="input-field sm:w-40">
+        <option value="all" <%= status === 'all' ? 'selected' : '' %>>All Status</option>
+        <option value="active" <%= status === 'active' ? 'selected' : '' %>>Active</option>
+        <option value="consumed" <%= status === 'consumed' ? 'selected' : '' %>>Consumed</option>
+        <option value="expired" <%= status === 'expired' ? 'selected' : '' %>>Expired</option>
+        <option value="disabled" <%= status === 'disabled' ? 'selected' : '' %>>Disabled</option>
+      </select>
+      <button type="submit" class="btn-secondary text-sm">Filter</button>
+    </form>
+  </div>
+
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Slug</th>
+          <th>Destination</th>
+          <th>Status</th>
+          <th>Views</th>
+          <th>Created</th>
+          <th>Expires</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (links.length === 0) { %>
+          <tr><td colspan="7" class="text-center text-gray-500 py-8">No links found</td></tr>
+        <% } %>
+        <% links.forEach(link => { %>
+          <tr>
+            <td>
+              <a href="/admin/links/<%= link.id %>" class="text-brand-400 hover:text-brand-300 font-mono text-xs"><%= link.slug %></a>
+            </td>
+            <td class="max-w-xs truncate text-gray-300 text-xs" title="<%= link.destinationUrl %>"><%= link.destinationUrl %></td>
+            <td>
+              <% if (link.status === 'active') { %><span class="badge-active">Active</span>
+              <% } else if (link.status === 'consumed') { %><span class="badge-consumed">Consumed</span>
+              <% } else if (link.status === 'expired') { %><span class="badge-expired">Expired</span>
+              <% } else if (link.status === 'disabled') { %><span class="badge-disabled">Disabled</span>
+              <% } else { %><span class="badge-deleted">Deleted</span>
+              <% } %>
+            </td>
+            <td class="text-gray-400 text-xs"><%= link.viewCount %>/<%= link.maxViews %></td>
+            <td class="text-gray-500 text-xs"><%= new Date(link.createdAt).toLocaleDateString() %></td>
+            <td class="text-gray-500 text-xs"><%= link.expiresAt ? new Date(link.expiresAt).toLocaleDateString() : '—' %></td>
+            <td>
+              <a href="/admin/links/<%= link.id %>" class="text-xs text-brand-400 hover:text-brand-300">Details</a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if (pages > 1) { %>
+    <div class="flex items-center justify-center gap-2 mt-6">
+      <% for (let p = 1; p <= pages; p++) { %>
+        <a href="/admin/links?page=<%= p %>&search=<%= search %>&status=<%= status %>&sort=<%= sort %>&order=<%= order %>" 
+           class="px-3 py-1.5 rounded-lg text-sm <%= p === currentPage ? 'bg-brand-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white' %>">
+          <%= p %>
+        </a>
+      <% } %>
+    </div>
+  <% } %>
+
+  <p class="text-xs text-gray-600 mt-4 text-center"><%= total %> total links</p>
+</div>

@@ -1,0 +1,134 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LinkStatus {
+  active
+  consumed
+  expired
+  disabled
+  deleted
+}
+
+enum EventType {
+  created
+  preview_blocked
+  password_ok
+  password_fail
+  consumed
+  expired_hit
+  invalid_hit
+  disabled_hit
+  deleted_hit
+}
+
+enum AuditAction {
+  admin_login_success
+  admin_login_failed
+  admin_logout
+  link_created
+  link_disabled
+  link_enabled
+  link_deleted
+  link_expiry_extended
+  link_slug_regenerated
+  link_viewed
+  settings_updated
+  admin_created
+}
+
+model Admin {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  name          String?
+  passwordHash  String   @map("password_hash")
+  role          String   @default("superadmin")
+  isActive      Boolean  @default(true) @map("is_active")
+  failedLogins  Int      @default(0) @map("failed_logins")
+  lockedUntil   DateTime? @map("locked_until")
+  lastLoginAt   DateTime? @map("last_login_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  links         Link[]
+  auditLogs     AuditLog[]
+
+  @@map("admins")
+}
+
+model Link {
+  id              String     @id @default(uuid())
+  slug            String     @unique
+  destinationUrl  String     @map("destination_url")
+  label           String?
+  passwordHash    String?    @map("password_hash")
+  maxViews        Int        @default(1) @map("max_views")
+  viewCount       Int        @default(0) @map("view_count")
+  expiresAt       DateTime?  @map("expires_at")
+  status          LinkStatus @default(active)
+  createdById     String?    @map("created_by_id")
+  consumedAt      DateTime?  @map("consumed_at")
+  lastAccessedAt  DateTime?  @map("last_accessed_at")
+  notes           String?
+  isPublic        Boolean    @default(true) @map("is_public")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  createdBy       Admin?     @relation(fields: [createdById], references: [id])
+  accessEvents    LinkAccessEvent[]
+
+  @@index([status])
+  @@index([expiresAt])
+  @@index([createdAt])
+  @@map("links")
+}
+
+model LinkAccessEvent {
+  id          String    @id @default(uuid())
+  linkId      String    @map("link_id")
+  timestamp   DateTime  @default(now())
+  ipHash      String?   @map("ip_hash")
+  userAgent   String?   @map("user_agent")
+  referer     String?
+  eventType   EventType @map("event_type")
+  country     String?
+  metadata    String?
+
+  link        Link      @relation(fields: [linkId], references: [id], onDelete: Cascade)
+
+  @@index([linkId])
+  @@index([timestamp])
+  @@index([eventType])
+  @@map("link_access_events")
+}
+
+model AuditLog {
+  id          String      @id @default(uuid())
+  adminId     String?     @map("admin_id")
+  action      AuditAction
+  target      String?
+  details     String?
+  ipHash      String?     @map("ip_hash")
+  timestamp   DateTime    @default(now())
+
+  admin       Admin?      @relation(fields: [adminId], references: [id])
+
+  @@index([adminId])
+  @@index([timestamp])
+  @@index([action])
+  @@map("audit_logs")
+}
+
+model AppSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       String
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("app_settings")
+}

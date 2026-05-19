@@ -1,0 +1,44 @@
+<% layout('layouts/admin') %>
+
+<div>
+  <h1 class="text-2xl font-bold text-white mb-6">Dashboard</h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="stat-card">
+      <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Total Links</p>
+      <p class="text-3xl font-bold text-white"><%= stats.total %></p>
+    </div>
+    <div class="stat-card">
+      <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Active</p>
+      <p class="text-3xl font-bold text-green-400"><%= stats.active %></p>
+    </div>
+    <div class="stat-card">
+      <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Consumed</p>
+      <p class="text-3xl font-bold text-blue-400"><%= stats.consumed %></p>
+    </div>
+    <div class="stat-card">
+      <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Expired</p>
+      <p class="text-3xl font-bold text-yellow-400"><%= stats.expired %></p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+    <div class="stat-card">
+      <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Disabled</p>
+      <p class="text-2xl font-bold text-gray-400"><%= stats.disabled %></p>
+    </div>
+    <div class="stat-card">
+      <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Clicks Today</p>
+      <p class="text-2xl font-bold text-brand-400"><%= stats.clicksToday %></p>
+    </div>
+    <div class="stat-card">
+      <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Clicks (7 Days)</p>
+      <p class="text-2xl font-bold text-brand-400"><%= stats.clicksWeek %></p>
+    </div>
+  </div>
+
+  <div class="flex gap-3">
+    <a href="/admin/links" class="btn-primary">Manage Links</a>
+    <a href="/admin/links/create" class="btn-secondary">Create Link</a>
+  </div>
+</div>
