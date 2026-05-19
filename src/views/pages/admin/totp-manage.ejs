@@ -1,0 +1,59 @@
+<% layout('layouts/admin') %>
+
+<div class="max-w-lg mx-auto">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-white">Two-Factor Authentication</h1>
+    <p class="text-gray-400 mt-1">Manage your two-factor authentication settings</p>
+  </div>
+
+  <% if (typeof success !== 'undefined' && success) { %>
+    <div class="mb-6 p-4 bg-green-900/50 border border-green-800 rounded-lg text-green-300 text-sm"><%= success %></div>
+  <% } %>
+
+  <% if (typeof error !== 'undefined' && error) { %>
+    <div class="mb-6 p-4 bg-red-900/50 border border-red-800 rounded-lg text-red-300 text-sm"><%= error %></div>
+  <% } %>
+
+  <div class="card">
+    <% if (enabled) { %>
+      <div class="flex items-start gap-4 mb-6">
+        <div class="flex-shrink-0 w-10 h-10 bg-green-900/50 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-white">2FA is Enabled</h3>
+          <p class="text-gray-400 text-sm mt-1">Your account is protected with two-factor authentication. You'll be asked for a verification code each time you log in.</p>
+        </div>
+      </div>
+
+      <div class="border-t border-gray-800 pt-6">
+        <h4 class="text-sm font-medium text-gray-300 mb-3">Disable Two-Factor Authentication</h4>
+        <p class="text-gray-500 text-sm mb-4">Enter your password to confirm disabling 2FA. This will make your account less secure.</p>
+        <form method="POST" action="/admin/2fa/disable" class="space-y-4">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
+            <input type="password" id="password" name="password" class="input-field" placeholder="Enter your password" required>
+          </div>
+          <button type="submit" class="px-4 py-2 bg-red-900/50 hover:bg-red-900 border border-red-800 text-red-300 rounded-lg text-sm transition" onclick="return confirm('Are you sure you want to disable 2FA?')">Disable 2FA</button>
+        </form>
+      </div>
+    <% } else { %>
+      <div class="flex items-start gap-4 mb-6">
+        <div class="flex-shrink-0 w-10 h-10 bg-yellow-900/50 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-white">2FA is Not Enabled</h3>
+          <p class="text-gray-400 text-sm mt-1">Add an extra layer of security to your account by enabling two-factor authentication.</p>
+        </div>
+      </div>
+
+      <a href="/admin/2fa/setup" class="btn-primary inline-block">Set Up 2FA</a>
+    <% } %>
+  </div>
+
+  <div class="mt-4 text-center">
+    <a href="/admin/settings" class="text-sm text-gray-400 hover:text-gray-300">Back to Settings</a>
+  </div>
+</div>

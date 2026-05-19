@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { requireAuth } from '../middleware/auth';
 import { createLoginRateLimit } from '../middleware/rate-limit';
-import { attemptLogin, logAuditEvent, getAuditLogs, getSettings, updateSettings } from '../services/admin.service';
+import { attemptLogin, completeTotpLogin, logAuditEvent, getAuditLogs, getSettings, updateSettings } from '../services/admin.service';
 import {
   getDashboardStats,
   getLinksForAdmin,
@@ -12,9 +12,18 @@ import {
   regenerateLinkSlug,
   createLink,
 } from '../services/link.service';
+import {
+  generateTotpSecret,
+  verifyTotpToken,
+  generateQrCodeDataUrl,
+  enableTotp,
+  disableTotp,
+  getAdminTotpStatus,
+} from '../services/totp.service';
 import { hashIp } from '../utils/bot-detection';
 import { getEnv } from '../config/env';
 import { z } from 'zod';
+import prisma from '../config/database';
 
 const router = Router();
 
@@ -54,6 +63,14 @@ router.post('/login', createLoginRateLimit(), async (req: Request, res: Response
     return;
   }
 
+  if (result.requireTotp) {
+    req.session.pendingTotpAdminId = result.admin!.id;
+    req.session.save(() => {
+      res.redirect('/admin/2fa/verify');
+    });
+    return;
+  }
+
   req.session.adminId = result.admin!.id;
   req.session.adminEmail = result.admin!.email;
   req.session.adminName = result.admin!.name || undefined;
@@ -61,6 +78,170 @@ router.post('/login', createLoginRateLimit(), async (req: Request, res: Response
 
   req.session.save(() => {
     res.redirect('/admin');
+  });
+});
+
+// 2FA verification page (during login)
+router.get('/2fa/verify', (req: Request, res: Response) => {
+  if (!req.session.pendingTotpAdminId) {
+    res.redirect('/admin/login');
+    return;
+  }
+  res.render('pages/admin/totp-verify', {
+    title: 'Two-Factor Authentication',
+    error: null,
+    csrfToken: res.locals.csrfToken,
+  });
+});
+
+router.post('/2fa/verify', async (req: Request, res: Response) => {
+  const adminId = req.session.pendingTotpAdminId;
+  if (!adminId) {
+    res.redirect('/admin/login');
+    return;
+  }
+
+  const { token } = req.body;
+  if (!token || token.length !== 6) {
+    res.status(400).render('pages/admin/totp-verify', {
+      title: 'Two-Factor Authentication',
+      error: 'Please enter a valid 6-digit code',
+      csrfToken: res.locals.csrfToken,
+    });
+    return;
+  }
+
+  const admin = await prisma.admin.findUnique({ where: { id: adminId } });
+  if (!admin || !admin.totpSecret) {
+    res.redirect('/admin/login');
+    return;
+  }
+
+  const isValid = verifyTotpToken(admin.totpSecret, token);
+  if (!isValid) {
+    res.status(401).render('pages/admin/totp-verify', {
+      title: 'Two-Factor Authentication',
+      error: 'Invalid verification code. Please try again.',
+      csrfToken: res.locals.csrfToken,
+    });
+    return;
+  }
+
+  const ip = req.ip || '0.0.0.0';
+  const result = await completeTotpLogin(adminId, ip);
+
+  if (!result.success || !result.admin) {
+    res.redirect('/admin/login');
+    return;
+  }
+
+  delete req.session.pendingTotpAdminId;
+  req.session.adminId = result.admin.id;
+  req.session.adminEmail = result.admin.email;
+  req.session.adminName = result.admin.name || undefined;
+  req.session.adminRole = result.admin.role;
+
+  req.session.save(() => {
+    res.redirect('/admin');
+  });
+});
+
+// 2FA setup page (for authenticated admins)
+router.get('/2fa/setup', requireAuth, async (req: Request, res: Response) => {
+  const status = await getAdminTotpStatus(req.session.adminId!);
+
+  if (status.enabled) {
+    res.render('pages/admin/totp-manage', {
+      title: 'Two-Factor Authentication',
+      enabled: true,
+      csrfToken: res.locals.csrfToken,
+      success: null,
+    });
+    return;
+  }
+
+  const email = req.session.adminEmail || 'admin';
+  const { secret, uri } = generateTotpSecret(email);
+  const qrCodeDataUrl = await generateQrCodeDataUrl(uri);
+
+  res.render('pages/admin/totp-setup', {
+    title: 'Set Up Two-Factor Authentication',
+    secret,
+    qrCodeDataUrl,
+    csrfToken: res.locals.csrfToken,
+    error: null,
+  });
+});
+
+router.post('/2fa/setup', requireAuth, async (req: Request, res: Response) => {
+  const { secret, token } = req.body;
+
+  if (!secret || !token) {
+    res.redirect('/admin/2fa/setup');
+    return;
+  }
+
+  const isValid = verifyTotpToken(secret, token);
+  if (!isValid) {
+    const email = req.session.adminEmail || 'admin';
+    const { uri } = generateTotpSecret(email);
+    const qrCodeDataUrl = await generateQrCodeDataUrl(uri);
+
+    res.status(400).render('pages/admin/totp-setup', {
+      title: 'Set Up Two-Factor Authentication',
+      secret,
+      qrCodeDataUrl,
+      csrfToken: res.locals.csrfToken,
+      error: 'Invalid code. Please scan the QR code again and enter the correct code.',
+    });
+    return;
+  }
+
+  await enableTotp(req.session.adminId!, secret);
+
+  const ipHash = hashIp(req.ip || '0.0.0.0');
+  await logAuditEvent(req.session.adminId || null, 'totp_setup', null, '2FA enabled', ipHash);
+
+  res.render('pages/admin/totp-manage', {
+    title: 'Two-Factor Authentication',
+    enabled: true,
+    csrfToken: res.locals.csrfToken,
+    success: 'Two-factor authentication has been enabled successfully.',
+  });
+});
+
+router.post('/2fa/disable', requireAuth, async (req: Request, res: Response) => {
+  const { password } = req.body;
+
+  const admin = await prisma.admin.findUnique({ where: { id: req.session.adminId } });
+  if (!admin) {
+    res.redirect('/admin/login');
+    return;
+  }
+
+  const { default: bcryptLib } = await import('bcrypt');
+  const passwordValid = await bcryptLib.compare(password, admin.passwordHash);
+  if (!passwordValid) {
+    res.status(401).render('pages/admin/totp-manage', {
+      title: 'Two-Factor Authentication',
+      enabled: true,
+      csrfToken: res.locals.csrfToken,
+      success: null,
+      error: 'Invalid password. 2FA was not disabled.',
+    });
+    return;
+  }
+
+  await disableTotp(req.session.adminId!);
+
+  const ipHash = hashIp(req.ip || '0.0.0.0');
+  await logAuditEvent(req.session.adminId || null, 'totp_disabled', null, '2FA disabled', ipHash);
+
+  res.render('pages/admin/totp-manage', {
+    title: 'Two-Factor Authentication',
+    enabled: false,
+    csrfToken: res.locals.csrfToken,
+    success: 'Two-factor authentication has been disabled.',
   });
 });
 

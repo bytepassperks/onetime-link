@@ -1,0 +1,45 @@
+<% layout('layouts/admin') %>
+
+<div class="max-w-lg mx-auto">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-white">Set Up Two-Factor Authentication</h1>
+    <p class="text-gray-400 mt-1">Scan the QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.)</p>
+  </div>
+
+  <% if (error) { %>
+    <div class="mb-6 p-4 bg-red-900/50 border border-red-800 rounded-lg text-red-300 text-sm"><%= error %></div>
+  <% } %>
+
+  <div class="card">
+    <div class="text-center mb-6">
+      <div class="inline-block p-4 bg-gray-800 rounded-xl">
+        <img src="<%= qrCodeDataUrl %>" alt="TOTP QR Code" class="mx-auto" width="256" height="256">
+      </div>
+    </div>
+
+    <div class="mb-6">
+      <p class="text-sm text-gray-400 mb-2">Can't scan the QR code? Enter this secret manually:</p>
+      <div class="flex items-center gap-2">
+        <code class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm font-mono text-brand-400 break-all select-all"><%= secret %></code>
+        <button onclick="copyToClipboard('<%= secret %>', this)" class="copy-btn px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-sm transition">Copy</button>
+      </div>
+    </div>
+
+    <form method="POST" action="/admin/2fa/setup" class="space-y-5">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="secret" value="<%= secret %>">
+
+      <div>
+        <label for="token" class="block text-sm font-medium text-gray-300 mb-1">Enter verification code to confirm setup</label>
+        <input type="text" id="token" name="token" class="input-field text-center text-2xl tracking-[0.3em] font-mono" placeholder="000000" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="one-time-code" required autofocus>
+        <p class="mt-1 text-xs text-gray-500">Enter the 6-digit code from your authenticator app</p>
+      </div>
+
+      <button type="submit" class="btn-primary w-full">Enable Two-Factor Authentication</button>
+    </form>
+  </div>
+
+  <div class="mt-4 text-center">
+    <a href="/admin/settings" class="text-sm text-gray-400 hover:text-gray-300">Cancel</a>
+  </div>
+</div>

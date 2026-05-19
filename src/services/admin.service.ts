@@ -14,6 +14,7 @@ export interface LoginResult {
     name: string | null;
     role: string;
   };
+  requireTotp?: boolean;
   error?: string;
 }
 
@@ -59,6 +60,19 @@ export async function attemptLogin(email: string, password: string, ip: string):
     return { success: false, error: 'Invalid email or password' };
   }
 
+  if (admin.totpEnabled && admin.totpSecret) {
+    return {
+      success: true,
+      requireTotp: true,
+      admin: {
+        id: admin.id,
+        email: admin.email,
+        name: admin.name,
+        role: admin.role,
+      },
+    };
+  }
+
   await prisma.admin.update({
     where: { id: admin.id },
     data: {
@@ -69,6 +83,36 @@ export async function attemptLogin(email: string, password: string, ip: string):
   });
 
   await logAuditEvent(admin.id, 'admin_login_success', email, 'Successful login', ipHash);
+
+  return {
+    success: true,
+    admin: {
+      id: admin.id,
+      email: admin.email,
+      name: admin.name,
+      role: admin.role,
+    },
+  };
+}
+
+export async function completeTotpLogin(adminId: string, ip: string): Promise<LoginResult> {
+  const ipHash = hashIp(ip);
+  const admin = await prisma.admin.findUnique({ where: { id: adminId } });
+
+  if (!admin) {
+    return { success: false, error: 'Admin not found' };
+  }
+
+  await prisma.admin.update({
+    where: { id: admin.id },
+    data: {
+      failedLogins: 0,
+      lockedUntil: null,
+      lastLoginAt: new Date(),
+    },
+  });
+
+  await logAuditEvent(admin.id, 'admin_login_success', admin.email, 'Successful login (with 2FA)', ipHash);
 
   return {
     success: true,

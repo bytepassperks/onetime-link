@@ -40,6 +40,8 @@ enum AuditAction {
   link_viewed
   settings_updated
   admin_created
+  totp_setup
+  totp_disabled
 }
 
 model Admin {
@@ -52,6 +54,8 @@ model Admin {
   failedLogins  Int      @default(0) @map("failed_logins")
   lockedUntil   DateTime? @map("locked_until")
   lastLoginAt   DateTime? @map("last_login_at")
+  totpSecret    String?  @map("totp_secret")
+  totpEnabled   Boolean  @default(false) @map("totp_enabled")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
@@ -59,6 +63,15 @@ model Admin {
   auditLogs     AuditLog[]
 
   @@map("admins")
+}
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime @map("expires_at")
+
+  @@map("sessions")
 }
 
 model Link {

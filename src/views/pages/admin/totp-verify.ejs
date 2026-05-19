@@ -1,0 +1,30 @@
+<% layout('layouts/main') %>
+
+<div class="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-20">
+  <div class="card">
+    <div class="text-center mb-8">
+      <svg class="w-12 h-12 mx-auto text-brand-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" /></svg>
+      <h1 class="text-2xl font-bold text-white">Two-Factor Authentication</h1>
+      <p class="text-gray-400 text-sm mt-1">Enter the 6-digit code from your authenticator app</p>
+    </div>
+
+    <% if (error) { %>
+      <div class="mb-6 p-4 bg-red-900/50 border border-red-800 rounded-lg text-red-300 text-sm"><%= error %></div>
+    <% } %>
+
+    <form method="POST" action="/admin/2fa/verify" class="space-y-5">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <div>
+        <label for="token" class="block text-sm font-medium text-gray-300 mb-1">Verification Code</label>
+        <input type="text" id="token" name="token" class="input-field text-center text-2xl tracking-[0.3em] font-mono" placeholder="000000" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="one-time-code" required autofocus>
+      </div>
+
+      <button type="submit" class="btn-primary w-full">Verify</button>
+
+      <div class="text-center">
+        <a href="/admin/login" class="text-sm text-gray-400 hover:text-gray-300">Back to login</a>
+      </div>
+    </form>
+  </div>
+</div>

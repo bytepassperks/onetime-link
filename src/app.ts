@@ -3,6 +3,7 @@ import path from 'path';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
+import connectPgSimple from 'connect-pg-simple';
 import cors from 'cors';
 import { getEnv } from './config/env';
 import { setupCsrf } from './middleware/csrf';
@@ -44,7 +45,15 @@ export function createApp() {
     maxAge: env.NODE_ENV === 'production' ? '1d' : 0,
   }));
 
+  const PgStore = connectPgSimple(session);
+
   app.use(session({
+    store: new PgStore({
+      conString: env.DATABASE_URL,
+      tableName: 'sessions',
+      createTableIfMissing: true,
+      pruneSessionInterval: 60 * 15,
+    }),
     secret: env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
