@@ -219,7 +219,7 @@ router.post('/2fa/disable', requireAuth, async (req: Request, res: Response) => 
     return;
   }
 
-  const { default: bcryptLib } = await import('bcrypt');
+  const { default: bcryptLib } = await import('bcryptjs');
   const passwordValid = await bcryptLib.compare(password, admin.passwordHash);
   if (!passwordValid) {
     res.status(401).render('pages/admin/totp-manage', {

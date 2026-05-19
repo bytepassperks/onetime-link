@@ -3,7 +3,7 @@ import { LinkStatus, Prisma } from '@prisma/client';
 import { generateSlug, isValidSlug } from '../utils/slug';
 import { validateDestinationUrl } from '../utils/url-validator';
 import { hashIp } from '../utils/bot-detection';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import logger from '../config/logger';
 
 export interface CreateLinkInput {

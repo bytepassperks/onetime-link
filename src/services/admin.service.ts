@@ -1,5 +1,5 @@
 import prisma from '../config/database';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import logger from '../config/logger';
 import { hashIp } from '../utils/bot-detection';
 

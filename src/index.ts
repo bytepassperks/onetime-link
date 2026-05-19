@@ -5,7 +5,7 @@ const env = loadEnv();
 import { createApp } from './app';
 import prisma from './config/database';
 import logger from './config/logger';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 async function seedAdmin() {
   const email = env.ADMIN_EMAIL;
