@@ -65,15 +65,6 @@ model Admin {
   @@map("admins")
 }
 
-model Session {
-  id        String   @id
-  sid       String   @unique
-  data      String
-  expiresAt DateTime @map("expires_at")
-
-  @@map("sessions")
-}
-
 model Link {
   id              String     @id @default(uuid())
   slug            String     @unique
