@@ -13,7 +13,7 @@
       <p class="text-xs text-gray-500 mb-2 uppercase tracking-wide">Your LinkOnce URL</p>
       <div class="flex items-center gap-2">
         <input type="text" readonly value="<%= shortUrl %>" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2.5 text-white text-sm font-mono" id="linkUrl">
-        <button onclick="copyToClipboard('<%= shortUrl %>', this)" class="copy-btn btn-primary px-4 py-2.5 text-sm">Copy</button>
+        <button data-copy="<%= shortUrl %>" class="copy-btn btn-primary px-4 py-2.5 text-sm">Copy</button>
       </div>
     </div>
 

@@ -22,23 +22,6 @@
     </div>
   </div>
   <script>
-    function copyToClipboard(text, btn) {
-      function onSuccess() {
-        btn.classList.add('copied');
-        btn.textContent = 'Copied!';
-        setTimeout(function() {
-          btn.classList.remove('copied');
-          btn.textContent = 'Copy';
-        }, 2000);
-      }
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(onSuccess).catch(function() {
-          fallbackCopy(text, onSuccess);
-        });
-      } else {
-        fallbackCopy(text, onSuccess);
-      }
-    }
     function fallbackCopy(text, cb) {
       var ta = document.createElement('textarea');
       ta.value = text;
@@ -50,13 +33,39 @@
       document.body.removeChild(ta);
       cb();
     }
-
-    const sidebar = document.getElementById('mobileSidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    function toggleSidebar() {
-      sidebar.classList.toggle('-translate-x-full');
-      overlay.classList.toggle('hidden');
-    }
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-copy]');
+      if (!btn) return;
+      var text = btn.getAttribute('data-copy');
+      function onSuccess() {
+        btn.classList.add('copied');
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.classList.remove('copied'); btn.textContent = 'Copy'; }, 2000);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(onSuccess).catch(function() { fallbackCopy(text, onSuccess); });
+      } else {
+        fallbackCopy(text, onSuccess);
+      }
+    });
+    var sidebar = document.getElementById('mobileSidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('[data-toggle-sidebar]') || e.target.closest('#sidebarOverlay')) {
+        sidebar.classList.toggle('-translate-x-full');
+        overlay.classList.toggle('hidden');
+      }
+    });
+    document.querySelectorAll('form[data-confirm]').forEach(function(form) {
+      form.addEventListener('submit', function(e) {
+        if (!confirm(form.getAttribute('data-confirm'))) e.preventDefault();
+      });
+    });
+    document.querySelectorAll('button[data-confirm]').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        if (!confirm(btn.getAttribute('data-confirm'))) e.preventDefault();
+      });
+    });
   </script>
 </body>
 </html>

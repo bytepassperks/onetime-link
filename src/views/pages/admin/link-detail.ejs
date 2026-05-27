@@ -16,7 +16,7 @@
           <dt class="text-sm text-gray-500">Short URL</dt>
           <dd class="text-sm text-gray-200 font-mono flex items-center gap-2">
             <%= baseUrl %>/r/<%= link.slug %>
-            <button onclick="copyToClipboard('<%= baseUrl %>/r/<%= link.slug %>', this)" class="copy-btn text-xs px-2 py-1 bg-gray-700 rounded hover:bg-gray-600">Copy</button>
+            <button data-copy="<%= baseUrl %>/r/<%= link.slug %>" class="copy-btn text-xs px-2 py-1 bg-gray-700 rounded hover:bg-gray-600">Copy</button>
           </dd>
         </div>
         <div class="flex justify-between items-start">
@@ -90,7 +90,7 @@
           </form>
         <% } %>
 
-        <form method="POST" action="/admin/links/<%= link.id %>/regenerate-slug" onsubmit="return confirm('This will generate a new slug. The old URL will stop working. Continue?')">
+        <form method="POST" action="/admin/links/<%= link.id %>/regenerate-slug" data-confirm="This will generate a new slug. The old URL will stop working. Continue?">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <button type="submit" class="btn-secondary w-full text-sm">Regenerate Slug</button>
         </form>
@@ -103,7 +103,7 @@
 
         <hr class="border-gray-800">
 
-        <form method="POST" action="/admin/links/<%= link.id %>/delete" onsubmit="return confirm('Are you sure you want to delete this link? This action uses soft-delete.')">
+        <form method="POST" action="/admin/links/<%= link.id %>/delete" data-confirm="Are you sure you want to delete this link? This action uses soft-delete.">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <button type="submit" class="btn-danger w-full text-sm">Delete Link</button>
         </form>
