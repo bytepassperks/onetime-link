@@ -37,7 +37,7 @@ router.get('/r/:slug', createConsumeRateLimit(), async (req: Request, res: Respo
     }
 
     res.status(200).render('pages/status/preview-blocked', {
-      title: 'One-Time Link',
+      title: 'LinkOnce',
       slug,
     });
     return;

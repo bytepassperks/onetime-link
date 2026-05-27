@@ -40,7 +40,7 @@ async function main() {
     { key: 'require_interstitial', value: 'true' },
     { key: 'allow_public_creation', value: process.env.ALLOW_PUBLIC_LINK_CREATION || 'true' },
     { key: 'registration_enabled', value: 'false' },
-    { key: 'brand_name', value: 'One-Time Link' },
+    { key: 'brand_name', value: 'LinkOnce' },
     { key: 'brand_tagline', value: 'Secure single-use redirect links' },
   ];
 
