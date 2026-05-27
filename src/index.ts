@@ -44,7 +44,7 @@ async function seedAdmin() {
     { key: 'require_interstitial', value: env.REQUIRE_INTERSTITIAL_FOR_SUSPECT_UA },
     { key: 'allow_public_creation', value: env.ALLOW_PUBLIC_LINK_CREATION },
     { key: 'registration_enabled', value: 'false' },
-    { key: 'brand_name', value: 'One-Time Link' },
+    { key: 'brand_name', value: 'LinkOnce' },
     { key: 'brand_tagline', value: 'Secure single-use redirect links' },
   ];
 

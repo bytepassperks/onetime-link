@@ -1,7 +1,7 @@
 {
   "name": "onetime-link",
   "version": "1.0.0",
-  "description": "One-Time Link Converter - Secure single-use redirect links",
+  "description": "LinkOnce - Secure single-use redirect links",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc && npm run build:css",

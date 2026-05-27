@@ -11,8 +11,8 @@ const router = Router();
 router.get('/', async (_req: Request, res: Response) => {
   const settings = await getSettings();
   res.render('pages/public/landing', {
-    title: 'One-Time Link Converter',
-    brandName: settings.brand_name || 'One-Time Link',
+    title: 'LinkOnce — Secure Single-Use Links',
+    brandName: settings.brand_name || 'LinkOnce',
     brandTagline: settings.brand_tagline || 'Secure single-use redirect links',
     allowPublicCreation: settings.allow_public_creation !== 'false',
   });
@@ -29,7 +29,7 @@ router.get('/create', async (_req: Request, res: Response) => {
   }
   const env = getEnv();
   res.render('pages/public/create', {
-    title: 'Create One-Time Link',
+    title: 'Create Link',
     defaultExpiryHours: env.DEFAULT_LINK_EXPIRY_HOURS,
     csrfToken: res.locals.csrfToken,
     error: null,
@@ -80,7 +80,7 @@ router.post('/create', createLinkRateLimit(), async (req: Request, res: Response
     if (!parsed.success) {
       const env = getEnv();
       res.status(400).render('pages/public/create', {
-        title: 'Create One-Time Link',
+        title: 'Create Link',
         defaultExpiryHours: env.DEFAULT_LINK_EXPIRY_HOURS,
         csrfToken: res.locals.csrfToken,
         error: parsed.error.issues[0]?.message || 'Invalid input',
@@ -118,7 +118,7 @@ router.post('/create', createLinkRateLimit(), async (req: Request, res: Response
     const errorMessage = err instanceof Error ? err.message : 'Failed to create link';
     logger.error({ err }, 'Link creation error');
     res.status(400).render('pages/public/create', {
-      title: 'Create One-Time Link',
+      title: 'Create Link',
       defaultExpiryHours: env.DEFAULT_LINK_EXPIRY_HOURS,
       csrfToken: res.locals.csrfToken,
       error: errorMessage,
