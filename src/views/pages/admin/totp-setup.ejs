@@ -21,7 +21,7 @@
       <p class="text-sm text-gray-400 mb-2">Can't scan the QR code? Enter this secret manually:</p>
       <div class="flex items-center gap-2">
         <code class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm font-mono text-brand-400 break-all select-all"><%= secret %></code>
-        <button onclick="copyToClipboard('<%= secret %>', this)" class="copy-btn px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-sm transition">Copy</button>
+        <button data-copy="<%= secret %>" class="copy-btn px-3 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-sm transition">Copy</button>
       </div>
     </div>
 

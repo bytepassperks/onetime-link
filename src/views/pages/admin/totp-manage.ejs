@@ -35,7 +35,7 @@
             <label for="password" class="block text-sm font-medium text-gray-300 mb-1">Password</label>
             <input type="password" id="password" name="password" class="input-field" placeholder="Enter your password" required>
           </div>
-          <button type="submit" class="px-4 py-2 bg-red-900/50 hover:bg-red-900 border border-red-800 text-red-300 rounded-lg text-sm transition" onclick="return confirm('Are you sure you want to disable 2FA?')">Disable 2FA</button>
+          <button type="submit" class="px-4 py-2 bg-red-900/50 hover:bg-red-900 border border-red-800 text-red-300 rounded-lg text-sm transition" data-confirm="Are you sure you want to disable 2FA?">Disable 2FA</button>
         </form>
       </div>
     <% } else { %>
