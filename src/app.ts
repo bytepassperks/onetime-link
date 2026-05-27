@@ -32,6 +32,7 @@ export function createApp() {
         objectSrc: ["'none'"],
         mediaSrc: ["'none'"],
         frameSrc: ["'none'"],
+        formAction: null,
       },
     },
     crossOriginEmbedderPolicy: false,
