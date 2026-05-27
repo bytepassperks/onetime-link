@@ -143,15 +143,24 @@ export async function consumeLink(
     const newViewCount = link.viewCount + 1;
     const newStatus = newViewCount >= link.maxViews ? 'consumed' : 'active';
 
-    await tx.link.update({
-      where: { id: link.id, viewCount: link.viewCount },
-      data: {
-        viewCount: newViewCount,
-        status: newStatus as LinkStatus,
-        consumedAt: newStatus === 'consumed' ? new Date() : link.consumedAt,
-        lastAccessedAt: new Date(),
-      },
-    });
+    try {
+      await tx.link.update({
+        where: { id: link.id, viewCount: link.viewCount },
+        data: {
+          viewCount: newViewCount,
+          status: newStatus as LinkStatus,
+          consumedAt: newStatus === 'consumed' ? new Date() : link.consumedAt,
+          lastAccessedAt: new Date(),
+        },
+      });
+    } catch (err: unknown) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+        const current = await tx.link.findUnique({ where: { slug } });
+        const status = current?.status === 'consumed' ? 'consumed' : (current?.status || 'invalid');
+        return { success: false, status };
+      }
+      throw err;
+    }
 
     await logAccessEventWithId(tx, link.id, ipHashed, userAgent, referer, 'consumed');
 
@@ -208,15 +217,24 @@ export async function consumeLinkWithPassword(
     const newViewCount = link.viewCount + 1;
     const newStatus = newViewCount >= link.maxViews ? 'consumed' : 'active';
 
-    await tx.link.update({
-      where: { id: link.id, viewCount: link.viewCount },
-      data: {
-        viewCount: newViewCount,
-        status: newStatus as LinkStatus,
-        consumedAt: newStatus === 'consumed' ? new Date() : link.consumedAt,
-        lastAccessedAt: new Date(),
-      },
-    });
+    try {
+      await tx.link.update({
+        where: { id: link.id, viewCount: link.viewCount },
+        data: {
+          viewCount: newViewCount,
+          status: newStatus as LinkStatus,
+          consumedAt: newStatus === 'consumed' ? new Date() : link.consumedAt,
+          lastAccessedAt: new Date(),
+        },
+      });
+    } catch (err: unknown) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2025') {
+        const current = await tx.link.findUnique({ where: { slug } });
+        const status = current?.status === 'consumed' ? 'consumed' : (current?.status || 'invalid');
+        return { success: false, status };
+      }
+      throw err;
+    }
 
     await logAccessEventWithId(tx, link.id, ipHashed, userAgent, referer, 'consumed');
 
