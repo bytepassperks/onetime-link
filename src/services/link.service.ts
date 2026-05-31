@@ -305,8 +305,6 @@ export async function getLinksForAdmin(params: {
 
   if (status && status !== 'all') {
     where.status = status as LinkStatus;
-  } else {
-    where.status = { not: 'deleted' };
   }
 
   if (search) {
@@ -342,7 +340,6 @@ export async function getLinkDetails(id: string) {
       createdBy: { select: { name: true, email: true } },
       accessEvents: {
         orderBy: { timestamp: 'desc' },
-        take: 50,
       },
     },
   });

@@ -21,7 +21,7 @@
         </div>
         <div class="flex justify-between items-start">
           <dt class="text-sm text-gray-500">Destination</dt>
-          <dd class="text-sm text-gray-200 max-w-md truncate"><a href="<%= link.destinationUrl %>" target="_blank" class="text-brand-400 hover:text-brand-300"><%= link.destinationUrl %></a></dd>
+          <dd class="text-sm text-gray-200 break-all"><a href="<%= link.destinationUrl %>" target="_blank" class="text-brand-400 hover:text-brand-300"><%= link.destinationUrl %></a></dd>
         </div>
         <div class="flex justify-between">
           <dt class="text-sm text-gray-500">Status</dt>
@@ -42,18 +42,14 @@
           <dt class="text-sm text-gray-500">Password Protected</dt>
           <dd class="text-sm text-gray-200"><%= link.passwordHash ? 'Yes' : 'No' %></dd>
         </div>
-        <% if (link.label) { %>
         <div class="flex justify-between">
           <dt class="text-sm text-gray-500">Label</dt>
-          <dd class="text-sm text-gray-200"><%= link.label %></dd>
+          <dd class="text-sm text-gray-200"><%= link.label || '—' %></dd>
         </div>
-        <% } %>
-        <% if (link.notes) { %>
-        <div class="flex justify-between">
+        <div class="flex justify-between items-start">
           <dt class="text-sm text-gray-500">Notes</dt>
-          <dd class="text-sm text-gray-200"><%= link.notes %></dd>
+          <dd class="text-sm text-gray-200 break-all"><%= link.notes || '—' %></dd>
         </div>
-        <% } %>
         <div class="flex justify-between">
           <dt class="text-sm text-gray-500">Created</dt>
           <dd class="text-sm text-gray-200"><%= new Date(link.createdAt).toLocaleString() %></dd>
@@ -68,12 +64,14 @@
           <dd class="text-sm text-gray-200"><%= new Date(link.consumedAt).toLocaleString() %></dd>
         </div>
         <% } %>
-        <% if (link.createdBy) { %>
         <div class="flex justify-between">
           <dt class="text-sm text-gray-500">Created By</dt>
-          <dd class="text-sm text-gray-200"><%= link.createdBy.name || link.createdBy.email %></dd>
+          <dd class="text-sm text-gray-200"><%= link.createdBy ? (link.createdBy.name || link.createdBy.email) : 'Public User' %></dd>
         </div>
-        <% } %>
+        <div class="flex justify-between">
+          <dt class="text-sm text-gray-500">Source</dt>
+          <dd class="text-sm text-gray-200"><%= link.isPublic ? 'Public Form' : 'Admin Panel' %></dd>
+        </div>
       </dl>
     </div>
 
@@ -137,8 +135,8 @@
                 </span>
               </td>
               <td class="text-gray-500 text-xs font-mono"><%= event.ipHash || '—' %></td>
-              <td class="text-gray-500 text-xs max-w-xs truncate" title="<%= event.userAgent || '' %>"><%= event.userAgent ? event.userAgent.substring(0, 60) + '...' : '—' %></td>
-              <td class="text-gray-500 text-xs max-w-xs truncate"><%= event.referer || '—' %></td>
+              <td class="text-gray-500 text-xs break-all"><%= event.userAgent || '—' %></td>
+              <td class="text-gray-500 text-xs break-all"><%= event.referer || '—' %></td>
             </tr>
           <% }) %>
         </tbody>

@@ -15,6 +15,7 @@
         <option value="consumed" <%= status === 'consumed' ? 'selected' : '' %>>Consumed</option>
         <option value="expired" <%= status === 'expired' ? 'selected' : '' %>>Expired</option>
         <option value="disabled" <%= status === 'disabled' ? 'selected' : '' %>>Disabled</option>
+        <option value="deleted" <%= status === 'deleted' ? 'selected' : '' %>>Deleted</option>
       </select>
       <button type="submit" class="btn-secondary text-sm">Filter</button>
     </form>
@@ -26,6 +27,7 @@
         <tr>
           <th>Slug</th>
           <th>Destination</th>
+          <th>Label</th>
           <th>Status</th>
           <th>Views</th>
           <th>Created</th>
@@ -35,14 +37,15 @@
       </thead>
       <tbody>
         <% if (links.length === 0) { %>
-          <tr><td colspan="7" class="text-center text-gray-500 py-8">No links found</td></tr>
+          <tr><td colspan="8" class="text-center text-gray-500 py-8">No links found</td></tr>
         <% } %>
         <% links.forEach(link => { %>
           <tr>
             <td>
               <a href="/admin/links/<%= link.id %>" class="text-brand-400 hover:text-brand-300 font-mono text-xs"><%= link.slug %></a>
             </td>
-            <td class="max-w-xs truncate text-gray-300 text-xs" title="<%= link.destinationUrl %>"><%= link.destinationUrl %></td>
+            <td class="text-gray-300 text-xs break-all"><%= link.destinationUrl %></td>
+            <td class="text-gray-400 text-xs"><%= link.label || '—' %></td>
             <td>
               <% if (link.status === 'active') { %><span class="badge-active">Active</span>
               <% } else if (link.status === 'consumed') { %><span class="badge-consumed">Consumed</span>
