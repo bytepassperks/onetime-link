@@ -2,6 +2,7 @@ import prisma from '../config/database';
 import bcrypt from 'bcryptjs';
 import logger from '../config/logger';
 import { hashIp } from '../utils/bot-detection';
+import { AuditAction } from '@prisma/client';
 
 const MAX_FAILED_LOGINS = 5;
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000;
@@ -127,7 +128,7 @@ export async function completeTotpLogin(adminId: string, ip: string): Promise<Lo
 
 export async function logAuditEvent(
   adminId: string | null,
-  action: string,
+  action: AuditAction,
   target: string | null,
   details: string | null,
   ipHash: string | null
@@ -136,7 +137,7 @@ export async function logAuditEvent(
     await prisma.auditLog.create({
       data: {
         adminId,
-        action: action as any,
+        action,
         target,
         details,
         ipHash,

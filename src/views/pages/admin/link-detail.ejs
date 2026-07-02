@@ -35,6 +35,10 @@
           </dd>
         </div>
         <div class="flex justify-between">
+          <dt class="text-sm text-gray-500">Mode</dt>
+          <dd class="text-sm text-gray-200"><%= link.redemptionMode %></dd>
+        </div>
+        <div class="flex justify-between">
           <dt class="text-sm text-gray-500">Views</dt>
           <dd class="text-sm text-gray-200"><%= link.viewCount %> / <%= link.maxViews %></dd>
         </div>
@@ -72,6 +76,12 @@
           <dt class="text-sm text-gray-500">Source</dt>
           <dd class="text-sm text-gray-200"><%= link.isPublic ? 'Public Form' : 'Admin Panel' %></dd>
         </div>
+        <% if (link.batchId) { %>
+        <div class="flex justify-between items-start">
+          <dt class="text-sm text-gray-500">Batch ID</dt>
+          <dd class="text-sm text-gray-200 font-mono break-all"><%= link.batchId %></dd>
+        </div>
+        <% } %>
       </dl>
     </div>
 
@@ -109,6 +119,47 @@
     </div>
   </div>
 
+  <% if (link.redemptionMode === 'unique_clients' && link.redemptions && link.redemptions.length) { %>
+  <div class="card mb-8">
+    <h2 class="text-lg font-semibold text-white mb-4">Redemptions</h2>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Redeemed At</th>
+            <th>Client</th>
+            <th>IP Hash</th>
+            <th>User Agent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% link.redemptions.forEach(function(redemption) { %>
+            <tr>
+              <td class="text-gray-400 text-xs whitespace-nowrap"><%= new Date(redemption.redeemedAt).toLocaleString() %></td>
+              <td class="text-gray-300 text-xs font-mono"><%= redemption.clientId.substring(0, 10) %>...</td>
+              <td class="text-gray-400 text-xs font-mono"><%= redemption.ipHash ? redemption.ipHash.substring(0, 10) + '...' : '—' %></td>
+              <td class="text-gray-500 text-xs max-w-sm truncate"><%= redemption.userAgent || '—' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <% } %>
+
+  <% if (link.batchId && link.batchLinks && link.batchLinks.length > 1) { %>
+  <div class="card mb-8">
+    <h2 class="text-lg font-semibold text-white mb-4">Batch Links</h2>
+    <div class="space-y-2">
+      <% link.batchLinks.forEach(function(batchLink) { %>
+        <a href="/admin/links/<%= batchLink.id %>" class="block bg-gray-800 rounded-lg px-4 py-3 text-sm text-gray-300 hover:text-white">
+          <span class="font-mono text-brand-400"><%= batchLink.slug %></span> — <%= batchLink.status %>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+  <% } %>
+
   <div class="card">
     <h2 class="text-lg font-semibold text-white mb-4">Access Events</h2>
     <div class="table-container">
@@ -126,17 +177,13 @@
           <% if (link.accessEvents.length === 0) { %>
             <tr><td colspan="5" class="text-center text-gray-500 py-6">No access events yet</td></tr>
           <% } %>
-          <% link.accessEvents.forEach(event => { %>
+          <% link.accessEvents.forEach(function(event) { %>
             <tr>
               <td class="text-gray-400 text-xs whitespace-nowrap"><%= new Date(event.timestamp).toLocaleString() %></td>
-              <td>
-                <span class="badge <%= event.eventType === 'consumed' ? 'bg-blue-900 text-blue-300' : event.eventType === 'preview_blocked' ? 'bg-yellow-900 text-yellow-300' : event.eventType === 'password_fail' ? 'bg-red-900 text-red-300' : 'bg-gray-700 text-gray-400' %>">
-                  <%= event.eventType %>
-                </span>
-              </td>
-              <td class="text-gray-500 text-xs font-mono"><%= event.ipHash || '—' %></td>
-              <td class="text-gray-500 text-xs break-all"><%= event.userAgent || '—' %></td>
-              <td class="text-gray-500 text-xs break-all"><%= event.referer || '—' %></td>
+              <td class="text-gray-300 text-xs"><%= event.eventType %></td>
+              <td class="text-gray-500 text-xs font-mono"><%= event.ipHash ? event.ipHash.substring(0, 10) + '...' : '—' %></td>
+              <td class="text-gray-500 text-xs max-w-sm truncate"><%= event.userAgent || '—' %></td>
+              <td class="text-gray-500 text-xs max-w-sm truncate"><%= event.referer || '—' %></td>
             </tr>
           <% }) %>
         </tbody>

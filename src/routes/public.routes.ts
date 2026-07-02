@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { createLink } from '../services/link.service';
+import { createLink, createLinkBatch } from '../services/link.service';
 import { getEnv } from '../config/env';
 import { getSettings } from '../services/admin.service';
 import logger from '../config/logger';
@@ -43,10 +43,21 @@ const createLinkSchema = z.object({
   label: z.string().optional().transform(v => v === '' ? undefined : v),
   password: z.string().optional().transform(v => v === '' ? undefined : v),
   notes: z.string().optional().transform(v => v === '' ? undefined : v),
+  mode: z.enum(['single', 'batch', 'unique_clients']).default('single'),
   maxViews: z.string().optional().transform(v => {
     if (!v || v === '') return 1;
     const n = parseInt(v, 10);
     return isNaN(n) || n < 1 ? 1 : n;
+  }),
+  quantity: z.string().optional().transform(v => {
+    if (!v || v === '') return 1;
+    const n = parseInt(v, 10);
+    return isNaN(n) || n < 1 ? 1 : Math.min(n, 1000);
+  }),
+  maxClients: z.string().optional().transform(v => {
+    if (!v || v === '') return 1;
+    const n = parseInt(v, 10);
+    return isNaN(n) || n < 1 ? 1 : Math.min(n, 1000);
   }),
   expiresAt: z.string().optional().transform(v => {
     if (!v || v === '') return null;
@@ -91,18 +102,41 @@ router.post('/create', createLinkRateLimit(), async (req: Request, res: Response
 
     const data = parsed.data;
 
+    const env = getEnv();
+    if (data.mode === 'batch') {
+      const links = await createLinkBatch({
+        destinationUrl: data.destinationUrl,
+        label: data.label,
+        password: data.password,
+        notes: data.notes,
+        expiresAt: data.expiresAt,
+        quantity: data.quantity,
+        isPublic: true,
+      });
+
+      res.render('pages/public/success', {
+        title: 'Links Created',
+        batchShortUrls: links.map((link) => ({
+          slug: link.slug,
+          shortUrl: `${env.APP_BASE_URL}/r/${link.slug}`,
+        })),
+        batchCount: links.length,
+      });
+      return;
+    }
+
     const link = await createLink({
       destinationUrl: data.destinationUrl,
       slug: data.slug,
       label: data.label,
       password: data.password,
       notes: data.notes,
-      maxViews: data.maxViews,
+      maxViews: data.mode === 'unique_clients' ? data.maxClients : data.maxViews,
       expiresAt: data.expiresAt,
+      redemptionMode: data.mode === 'unique_clients' ? 'unique_clients' : 'total_views',
       isPublic: true,
     });
 
-    const env = getEnv();
     const shortUrl = `${env.APP_BASE_URL}/r/${link.slug}`;
 
     res.render('pages/public/success', {
