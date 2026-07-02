@@ -11,6 +11,7 @@ import {
   extendLinkExpiry,
   regenerateLinkSlug,
   createLink,
+  createLinkBatch,
 } from '../services/link.service';
 import {
   generateTotpSecret,
@@ -305,16 +306,38 @@ router.post('/links/create', requireAuth, async (req: Request, res: Response) =>
   try {
     const data = req.body;
 
+    if (data.mode === 'batch') {
+      const links = await createLinkBatch({
+        destinationUrl: data.destinationUrl,
+        label: data.label || undefined,
+        password: data.password || undefined,
+        notes: data.notes || undefined,
+        quantity: Math.min(Math.max(parseInt(data.quantity, 10) || 1, 1), 1000),
+        expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+        createdById: req.session.adminId,
+        isPublic: false,
+      });
+
+      const ipHash = hashIp(req.ip || '0.0.0.0');
+      await logAuditEvent(req.session.adminId || null, 'link_created', links[0].batchId || links[0].slug, `Admin created batch of ${links.length} links`, ipHash);
+
+      res.redirect(`/admin/links/${links[0].id}`);
+      return;
+    }
+
     const link = await createLink({
       destinationUrl: data.destinationUrl,
       slug: data.slug || undefined,
       label: data.label || undefined,
       password: data.password || undefined,
       notes: data.notes || undefined,
-      maxViews: parseInt(data.maxViews) || 1,
+      maxViews: data.mode === 'unique_clients'
+        ? Math.min(Math.max(parseInt(data.maxClients, 10) || 1, 1), 1000)
+        : Math.min(Math.max(parseInt(data.maxViews, 10) || 1, 1), 1000),
       expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
       createdById: req.session.adminId,
       isPublic: false,
+      redemptionMode: data.mode === 'unique_clients' ? 'unique_clients' : 'total_views',
     });
 
     const ipHash = hashIp(req.ip || '0.0.0.0');

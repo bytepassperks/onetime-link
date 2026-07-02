@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { consumeLink, consumeLinkWithPassword, getLinkBySlug } from '../services/link.service';
+import { consumeLink, consumeLinkWithPassword, consumeUniqueClient, consumeUniqueClientWithPassword, getLinkBySlug } from '../services/link.service';
 import { detectBot, hashIp } from '../utils/bot-detection';
+import { getClientIdentity } from '../utils/client-identity';
 import { getEnv } from '../config/env';
 import { createConsumeRateLimit } from '../middleware/rate-limit';
 import logger from '../config/logger';
@@ -54,6 +55,33 @@ router.get('/r/:slug', createConsumeRateLimit(), async (req: Request, res: Respo
   }
 
   try {
+    const link = await getLinkBySlug(slug);
+    if (link?.redemptionMode === 'unique_clients') {
+      const identity = getClientIdentity(req, res);
+      const result = await consumeUniqueClient(slug, identity.clientId, identity.ipUaHash, ip, userAgent, referer);
+
+      if (!result.success) {
+        if (result.requiresPassword) {
+          res.render('pages/public/password', {
+            title: 'Password Required',
+            slug,
+            error: null,
+            csrfToken: res.locals.csrfToken,
+          });
+          return;
+        }
+
+        const statusPage = result.status || 'invalid';
+        res.status(statusPage === 'invalid' ? 404 : 410).render(`pages/status/${statusPage}`, {
+          title: getStatusTitle(statusPage),
+        });
+        return;
+      }
+
+      res.redirect(302, result.destinationUrl!);
+      return;
+    }
+
     const result = await consumeLink(slug, ip, userAgent, referer);
 
     if (!result.success) {
@@ -92,7 +120,11 @@ router.post('/r/:slug', createConsumeRateLimit(), async (req: Request, res: Resp
 
   if (req.body._interstitial === 'true') {
     try {
-      const result = await consumeLink(slug, ip, userAgent, referer);
+      const link = await getLinkBySlug(slug);
+      const identity = link?.redemptionMode === 'unique_clients' ? getClientIdentity(req, res) : null;
+      const result = link?.redemptionMode === 'unique_clients'
+        ? await consumeUniqueClient(slug, identity!.clientId, identity!.ipUaHash, ip, userAgent, referer)
+        : await consumeLink(slug, ip, userAgent, referer);
 
       if (!result.success) {
         if (result.requiresPassword) {
@@ -136,6 +168,33 @@ router.post('/r/:slug', createConsumeRateLimit(), async (req: Request, res: Resp
   }
 
   try {
+    const link = await getLinkBySlug(slug);
+    if (link?.redemptionMode === 'unique_clients') {
+      const identity = getClientIdentity(req, res);
+      const result = await consumeUniqueClientWithPassword(slug, password, identity.clientId, identity.ipUaHash, ip, userAgent, referer);
+
+      if (!result.success) {
+        if (result.status === 'password_required') {
+          res.render('pages/public/password', {
+            title: 'Password Required',
+            slug,
+            error: result.error || 'Incorrect password',
+            csrfToken: res.locals.csrfToken,
+          });
+          return;
+        }
+
+        const statusPage = result.status || 'invalid';
+        res.status(statusPage === 'invalid' ? 404 : 410).render(`pages/status/${statusPage}`, {
+          title: getStatusTitle(statusPage),
+        });
+        return;
+      }
+
+      res.redirect(302, result.destinationUrl!);
+      return;
+    }
+
     const result = await consumeLinkWithPassword(slug, password, ip, userAgent, referer);
 
     if (!result.success) {
@@ -169,6 +228,7 @@ router.post('/r/:slug', createConsumeRateLimit(), async (req: Request, res: Resp
 function getStatusTitle(status: string): string {
   switch (status) {
     case 'consumed': return 'Link Already Used';
+    case 'already_redeemed': return 'Already Redeemed';
     case 'expired': return 'Link Expired';
     case 'disabled': return 'Link Disabled';
     case 'invalid': return 'Link Not Found';

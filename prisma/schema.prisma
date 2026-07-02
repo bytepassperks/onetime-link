@@ -15,12 +15,18 @@ enum LinkStatus {
   deleted
 }
 
+enum RedemptionMode {
+  total_views
+  unique_clients
+}
+
 enum EventType {
   created
   preview_blocked
   password_ok
   password_fail
   consumed
+  already_redeemed
   expired_hit
   invalid_hit
   disabled_hit
@@ -73,6 +79,8 @@ model Link {
   passwordHash    String?    @map("password_hash")
   maxViews        Int        @default(1) @map("max_views")
   viewCount       Int        @default(0) @map("view_count")
+  redemptionMode  RedemptionMode @default(total_views) @map("redemption_mode")
+  batchId         String?    @map("batch_id")
   expiresAt       DateTime?  @map("expires_at")
   status          LinkStatus @default(active)
   createdById     String?    @map("created_by_id")
@@ -85,11 +93,28 @@ model Link {
 
   createdBy       Admin?     @relation(fields: [createdById], references: [id])
   accessEvents    LinkAccessEvent[]
+  redemptions     LinkRedemption[]
 
   @@index([status])
   @@index([expiresAt])
   @@index([createdAt])
+  @@index([batchId])
   @@map("links")
+}
+
+model LinkRedemption {
+  id          String   @id @default(uuid())
+  linkId      String   @map("link_id")
+  clientId    String   @map("client_id")
+  ipHash      String?  @map("ip_hash")
+  userAgent   String?  @map("user_agent")
+  redeemedAt  DateTime @default(now()) @map("redeemed_at")
+
+  link        Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
+
+  @@unique([linkId, clientId])
+  @@index([linkId])
+  @@map("link_redemptions")
 }
 
 model LinkAccessEvent {

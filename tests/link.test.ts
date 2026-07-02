@@ -14,6 +14,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await prisma.linkAccessEvent.deleteMany();
+  await prisma.linkRedemption.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.link.deleteMany();
 });
