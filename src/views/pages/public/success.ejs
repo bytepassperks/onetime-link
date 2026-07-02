@@ -6,12 +6,12 @@
       <svg class="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
     </div>
 
-    <% if (batchShortUrls && batchShortUrls.length) { %>
+    <% if (locals.batchShortUrls && locals.batchShortUrls.length) { %>
       <h1 class="text-2xl font-bold text-white mb-2">Links Created Successfully</h1>
       <p class="text-gray-400 mb-6">Your batch is ready to share.</p>
 
       <div class="space-y-3 mb-6 text-left">
-        <% batchShortUrls.forEach(function(item, index) { %>
+        <% locals.batchShortUrls.forEach(function(item, index) { %>
           <div class="bg-gray-800 rounded-lg p-4 flex items-center gap-3">
             <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-xs text-gray-300"><%= index + 1 %></div>
             <input type="text" readonly value="<%= item.shortUrl %>" class="flex-1 bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm font-mono">
@@ -20,7 +20,7 @@
         <% }) %>
       </div>
 
-      <p class="text-sm text-gray-500 mb-6"><%= batchCount %> one-time links were created. Each URL can be used once.</p>
+      <p class="text-sm text-gray-500 mb-6"><%= locals.batchCount %> one-time links were created. Each URL can be used once.</p>
     <% } else { %>
       <h1 class="text-2xl font-bold text-white mb-2">Link Created Successfully</h1>
       <p class="text-gray-400 mb-6">Your one-time link is ready to share.</p>
